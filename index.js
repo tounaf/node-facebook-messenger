@@ -2,12 +2,20 @@
 
 // Imports dependencies and set up http server
 const
+  axios = require('axios').default,
   express = require('express'),
   bodyParser = require('body-parser'),
-  app = express().use(bodyParser.json()); // creates express http server
-
+  app = express().use(bodyParser.json()), // creates express http server
+  config = require('./config');
+  axios.create({
+    baseURL: config.apiUrl,
+    headers: {
+      'Content-TYpe': 'Application/json'
+    }
+  })
 // Sets server port and logs message on success
 var port = process.env.PORT || 8080;
+
 
 app.listen(port, () => console.log('webhook is listening'));
 app.get('/test', (req, res) => {
@@ -16,22 +24,45 @@ app.get('/test', (req, res) => {
 });
 // Creates the endpoint for our webhook 
 app.post('/webhook', (req, res) => {  
- 
+  
   console.log('Initiate request');
   let body = req.body;
-
+  const ACCESS_TOKEN = "EAAHex127re4BAGgO6rTEoZCio9MHHXd5MGzjy4G0snZCBI7VdvnIZBPykRBmZBizJ3BufeyjWeBTMhf8ZCY5DOn4O8s9rJs0RJS9HP1JJRefI3mCcqE2dsrZAuxZCgAifAjE49ooNIJdxLzsVwZBqXYTKaC9rSTLSHy6JvwJwQ4NjxhoPfRxA7wq";
   // Checks this is an event from a page subscription
   if (body.object === 'page') {
 
     // Iterates over each entry - there may be multiple if batched
+    console.log('======================== body.entry', body.entry);
     body.entry.forEach(function(entry) {
 
       // Gets the message. entry.messaging is an array, but 
       // will only ever contain one message, so we get index 0
       let webhook_event = entry.messaging[0];
       console.log(webhook_event);
+      const sender = webhook_event.recipient.id;
+      const recicient = webhook_event.sender.id;
+      const message = {
+        "sender":{
+          "id": sender
+        },
+        "recipient":{
+          "id": recicient
+        },
+        "timestamp": webhook_event.timestamp,
+        "message":{
+          "mid": webhook_event.message.mid,
+          "text":"hello, world! tounaf",
+          "reply_to": {
+            "mid": webhook_event.message.mid
+          }
+        }
+      };
+      console.log('=================== Replay', message);
+      axios.post('/me/messages?access_token='+ACCESS_TOKEN, message).then((response) => {console.log('Response okk')}).catch((error) => {console.error('Error' + error);})
+    
     });
 
+    
     // Returns a '200 OK' response to all requests
     res.status(200).send('EVENT_RECEIVED');
   } else {
