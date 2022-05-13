@@ -2,17 +2,10 @@
 
 // Imports dependencies and set up http server
 const
-  axios = require('axios').default,
+  request = require('request'),
   express = require('express'),
   bodyParser = require('body-parser'),
-  app = express().use(bodyParser.json()), // creates express http server
-  config = require('./config');
-  axios.create({
-    baseURL: config.apiUrl,
-    headers: {
-      'Content-TYpe': 'Application/json'
-    }
-  })
+  app = express().use(bodyParser.json()); // creates express http server
 // Sets server port and logs message on success
 var port = process.env.PORT || 8080;
 
@@ -33,6 +26,7 @@ app.post('/webhook', (req, res) => {
 
     // Iterates over each entry - there may be multiple if batched
     console.log('======================== body.entry', body.entry);
+    console.log('*******************************************');
     body.entry.forEach(function(entry) {
 
       // Gets the message. entry.messaging is an array, but 
@@ -48,17 +42,24 @@ app.post('/webhook', (req, res) => {
         "recipient":{
           "id": recicient
         },
-        "timestamp": webhook_event.timestamp,
         "message":{
-          "mid": webhook_event.message.mid,
-          "text":"hello, world! tounaf",
-          "reply_to": {
-            "mid": webhook_event.message.mid
-          }
+          "text":"hello, world! tounaf"
         }
       };
+      
       console.log('=================== Replay', message);
-      axios.post('/me/messages?access_token='+ACCESS_TOKEN, message).then((response) => {console.log('Response okk')}).catch((error) => {console.error('Error' + error);})
+      request({
+        "uri" :"https://graph.facebook.com/v2.6/me/messages",
+        "qs" : { "access_token": ACCESS_TOKEN },
+        "method" : "POST",
+        "json" : message
+      }, (err, res, body) => {
+        if(err) {
+          console.log('Erro lors evoe' + err)
+        } else {
+          console.log('Message sent');
+        }
+      })
     
     });
 
