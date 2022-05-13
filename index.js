@@ -7,7 +7,7 @@ const
   app = express().use(bodyParser.json()); // creates express http server
 
 // Sets server port and logs message on success
-app.listen(3000, () => console.log('webhook is listening'));
+app.listen(8080, () => console.log('webhook is listening'));
 app.get('/test', (req, res) => {
 	console.log('test');
 });
