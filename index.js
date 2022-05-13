@@ -12,6 +12,7 @@ var port = process.env.PORT || 8080;
 app.listen(port, () => console.log('webhook is listening'));
 app.get('/test', (req, res) => {
 	console.log('test');
+	res.sendStatus(200);
 });
 // Creates the endpoint for our webhook 
 app.post('/webhook', (req, res) => {  

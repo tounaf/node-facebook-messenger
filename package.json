@@ -8,7 +8,7 @@
     "start":"node index.js"
   },
   "engines": {
-    "node": "16.15.x"
+    "node": "16.x"
   },
   "author": "fetra",
   "license": "ISC",
